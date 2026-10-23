@@ -160,6 +160,7 @@ static int test_sec_mem_clear(void)
      * current implementation.
      */
     for (i = sizeof(void *) * 2; i < size; i++)
+        /* codeql[cpp/use-after-free] */
         if (!TEST_uchar_eq(p[i], 0))
             return 0;
 

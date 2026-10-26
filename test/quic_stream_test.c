@@ -2944,12 +2944,17 @@ static int tdc_find_pattern(const unsigned char *pat, size_t plen,
 static void tdc_inspect_before_free(void *ptr, size_t size)
 {
     const unsigned char *p = ptr;
+    size_t limit;
     size_t i;
 
-    if (size < sizeof(tdc_expected8))
+    /* Guard against NULL and buffers smaller than the needle */
+    if (ptr == NULL || size < sizeof(tdc_expected8))
         return;
 
-    for (i = 0; i + sizeof(tdc_expected8) <= size; ++i) {
+    /* Compute safe inclusive upper bound without in-loop addition */
+    limit = size - sizeof(tdc_expected8);
+
+    for (i = 0; i <= limit; ++i) {
         if (memcmp(p + i, tdc_expected8, sizeof(tdc_expected8)) == 0) {
             tdc_saw_remnant_on_free = 1;
             return;

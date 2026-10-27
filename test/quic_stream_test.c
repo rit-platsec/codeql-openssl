@@ -2944,18 +2944,13 @@ static int tdc_find_pattern(const unsigned char *pat, size_t plen,
 static void tdc_inspect_before_free(void *ptr, size_t size)
 {
     const unsigned char *p = ptr;
-    size_t limit;
     size_t i;
-
-    /* Guard against NULL and buffers smaller than the needle */
-    if (ptr == NULL || size < sizeof(tdc_expected8))
+  
+    if (size < TDC_EXPECTED8_SZ)
         return;
 
-    /* Compute safe inclusive upper bound without in-loop addition */
-    limit = size - sizeof(tdc_expected8);
-
-    for (i = 0; i <= limit; ++i) {
-        if (memcmp(p + i, tdc_expected8, sizeof(tdc_expected8)) == 0) {
+    for (i = 0; i + TDC_EXPECTED8_SZ <= size; ++i) {
+        if (memcmp(p + i, tdc_expected8, TDC_EXPECTED8_SZ) == 0) {
             tdc_saw_remnant_on_free = 1;
             return;
         }
@@ -3128,7 +3123,7 @@ static int test_dstorage_cleanse(void)
      * IJKLMNOPIJKLMNOP
      */
     memset(window, 0, sizeof(window));
-    found_after_partial = tdc_find_pattern(doubled, sizeof(doubled),
+    found_after_partial = tdc_find_pattern(doubled, TDC_EXPECTED16_SZ,
         window, sizeof(window));
     if (!TEST_false(found_after_partial))
         goto err;

@@ -2945,7 +2945,7 @@ static void tdc_inspect_before_free(void *ptr, size_t size)
 {
     const unsigned char *p = ptr;
     size_t i;
-
+  
     if (size < TDC_EXPECTED8_SZ)
         return;
 
